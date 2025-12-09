@@ -350,11 +350,13 @@ def get_all_matches() -> List[Dict[str, Any]]:
             l.name as league_name, l.country as league_country, l.flag_class as league_flag_class, l.logo_url as league_logo_url,
             ht.name as home_team_name, ht.logo_url as home_team_logo_url,
             at.name as away_team_name, at.logo_url as away_team_logo_url
-        FROM matches m
-        LEFT JOIN leagues l ON m.league_id = l.id
         LEFT JOIN teams ht ON m.home_team_id = ht.id
         LEFT JOIN teams at ON m.away_team_id = at.id
-        ORDER BY m.scheduled_datetime DESC, m.match_time DESC
+        ORDER BY 
+            m.is_live DESC,
+            CASE WHEN m.match_date IS NULL THEN 1 ELSE 0 END,
+            m.match_date ASC, 
+            m.match_time ASC
     """
     
     cursor.execute(query)
