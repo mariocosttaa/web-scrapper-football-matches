@@ -11,8 +11,8 @@ services:
       - .:/app
       # Only persist outputs folder (code changes don't need rebuild)
       - ./outputs:/app/outputs
-    # Persist db directory (contains matches.db and any other database files)
-    - ./db:/app/db
+      # Persist db directory (contains matches.db and any other database files)
+      - ./db:/app/db
     
     # Expose web server port
     ports:
