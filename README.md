@@ -104,12 +104,21 @@ A powerful web scraper for extracting live match data from FlashScore.pt, with S
    cd web-scrapping-app
    ```
 
-2. **Start the container:**
+2. **Start the container (web server starts automatically):**
    ```bash
    ./dc up
    ```
 
-3. **That's it!** The container is ready to use.
+3. **Access the web interface:**
+   - Frontend: http://localhost:5000/
+   - API: http://localhost:5000/api/matches
+
+4. **Run the scraper:**
+   ```bash
+   ./dc run
+   ```
+
+The web server starts automatically when the container starts. Use `./dc run` to execute the scraper.
 
 ### Option 2: Local Installation
 
@@ -337,21 +346,33 @@ SELECT * FROM matches ORDER BY scraped_at DESC LIMIT 10;
 
 ## 🌐 Landing Page & API
 
-### Automatic Startup
+### Automatic Startup (Docker)
 
-The web server **starts automatically** when you run the main application:
+When you start the Docker container, the web server **starts automatically**:
 
 ```bash
-# In Docker
-./dc run
-
-# Or locally
-python main.py
+./dc up
 ```
 
 The web server will start on `http://localhost:5000` and serve both:
 - **Frontend:** `http://localhost:5000/` - Beautiful landing page
 - **API:** `http://localhost:5000/api/matches` - REST API endpoints
+
+You'll see server information in the terminal when it starts.
+
+### Running the Scraper
+
+The scraper runs separately from the web server:
+
+```bash
+# In Docker (web server already running)
+./dc run
+
+# Or locally (if you want to run scraper only)
+python main.py
+```
+
+**Note:** `./dc run` only runs the scraper. The web server is started separately via `./dc up`.
 
 ### Configuration
 

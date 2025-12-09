@@ -31,7 +31,6 @@ from app.helper import (
     print_error
 )
 from db.database import init_database
-import threading
 
 
 def import_step_module(module_name, function_name):
@@ -198,41 +197,17 @@ def run_all_steps():
         close_browser(browser, playwright_context)
 
 
-def start_web_server():
-    """Start the web server in a separate thread."""
-    if config.WEB_SERVER_ENABLED:
-        try:
-            from app.landing_page import run_server
-            server_thread = threading.Thread(
-                target=run_server,
-                args=(config.WEB_SERVER_HOST, config.WEB_SERVER_PORT, False),
-                daemon=True
-            )
-            server_thread.start()
-            logger = logging.getLogger(__name__)
-            logger.info(f"🌐 Web server started on http://localhost:{config.WEB_SERVER_PORT}/")
-            print(f"\n🌐 Web server started!")
-            print(f"   Frontend: http://localhost:{config.WEB_SERVER_PORT}/")
-            print(f"   API: http://localhost:{config.WEB_SERVER_PORT}/api/matches\n")
-        except Exception as e:
-            logger = logging.getLogger(__name__)
-            logger.error(f"Failed to start web server: {e}")
-            print(f"⚠️  Could not start web server: {e}")
-
-
 def main():
     """
-    Main entry point.
+    Main entry point for web scraper.
     Handles single run or repeating mode based on configuration.
     - If REPEAT_ENABLED is True: runs automatically in repeat mode
     - If REPEAT_ENABLED is False: runs once (manual execution)
-    - Web server starts automatically if WEB_SERVER_ENABLED is True
+    
+    Note: Web server is started separately via start_server.py (for Docker)
     """
     # Set up logging at application start
     logger = setup_logging("app-log.log")
-    
-    # Start web server if enabled
-    start_web_server()
     
     if config.REPEAT_ENABLED:
         logger.info("🔄 Starting scraper in repeat mode")

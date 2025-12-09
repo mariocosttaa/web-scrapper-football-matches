@@ -14,9 +14,9 @@ services:
       # Persist db directory (contains matches.db and any other database files)
       - ./db:/app/db
     
-    # Don't run anything automatically - only run when manually commanded
-    # Use ./dc run or ./dc exec python main.py to run the scraper
-    command: tail -f /dev/null  # Keep container running but do nothing
+    # Automatically start web server when container starts
+    # Use ./dc run to run the scraper manually
+    command: python start_server.py  # Start web server automatically
     
     # Don't auto-restart - only start manually with ./dc up
     restart: "no"
