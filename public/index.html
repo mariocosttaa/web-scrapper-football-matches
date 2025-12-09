@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        
         * {
             font-family: 'Inter', sans-serif;
         }
@@ -38,8 +38,13 @@
         }
         
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: .5; }
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .5;
+            }
         }
         
         .loading-spinner {
@@ -52,8 +57,12 @@
         }
         
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
         }
         
         .status-badge {
@@ -74,12 +83,11 @@
         }
         
         .field-pattern {
-            background-image: 
-                repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(255,255,255,0.1) 49px, rgba(255,255,255,0.1) 50px),
-                repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(255,255,255,0.1) 49px, rgba(255,255,255,0.1) 50px);
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(255, 255, 255, 0.1) 49px, rgba(255, 255, 255, 0.1) 50px), repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(255, 255, 255, 0.1) 49px, rgba(255, 255, 255, 0.1) 50px);
         }
     </style>
 </head>
+
 <body class="bg-gray-50">
     <!-- Header -->
     <header class="gradient-bg text-white shadow-lg">
@@ -146,30 +154,27 @@
         <!-- Live Matches Section -->
         <section class="mb-12 hidden" id="live-section">
             <h2 class="text-2xl font-bold mb-6 flex items-center">
-                <span class="w-3 h-3 bg-red-500 rounded-full mr-3 live-pulse"></span>
-                Live Matches (<span id="live-count-header">0</span>)
+                <span class="w-3 h-3 bg-red-500 rounded-full mr-3 live-pulse"></span> Live Matches (<span id="live-count-header">0</span>)
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="live-matches"></div>
         </section>
-        
+
         <!-- Scheduled Matches Section -->
         <section class="mb-12 hidden" id="scheduled-section">
             <h2 class="text-2xl font-bold mb-6 flex items-center">
-                <i class="fas fa-clock text-blue-500 mr-3"></i>
-                Scheduled Matches (<span id="scheduled-count-header">0</span>)
+                <i class="fas fa-clock text-blue-500 mr-3"></i> Scheduled Matches (<span id="scheduled-count-header">0</span>)
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="scheduled-matches"></div>
         </section>
-        
+
         <!-- Finished Matches Section -->
         <section class="mb-12 hidden" id="finished-section">
             <h2 class="text-2xl font-bold mb-6 flex items-center">
-                <i class="fas fa-check-circle text-green-500 mr-3"></i>
-                Finished Matches (<span id="finished-count-header">0</span>)
+                <i class="fas fa-check-circle text-green-500 mr-3"></i> Finished Matches (<span id="finished-count-header">0</span>)
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="finished-matches"></div>
         </section>
-        
+
         <!-- Empty State -->
         <div class="text-center py-16 hidden" id="empty-state">
             <i class="fas fa-futbol text-6xl text-gray-300 mb-4"></i>
@@ -196,9 +201,10 @@
 
     <!-- JavaScript -->
     <script>
-        const API_BASE_URL = 'http://localhost:5000/api';
+        // Auto-detect API URL based on current host
+        const API_BASE_URL = `${window.location.protocol}//${window.location.host}/api`;
         let observer;
-        
+
         // Initialize Intersection Observer for lazy loading
         function initLazyLoading() {
             observer = new IntersectionObserver((entries) => {
@@ -212,13 +218,13 @@
                 rootMargin: '50px'
             });
         }
-        
+
         // Fetch matches from API
         async function fetchMatches() {
             try {
                 const response = await fetch(`${API_BASE_URL}/matches`);
                 const data = await response.json();
-                
+
                 if (data.success) {
                     return data;
                 } else {
@@ -229,7 +235,7 @@
                 return null;
             }
         }
-        
+
         // Create match card HTML
         function createMatchCard(match, statusType) {
             const homeTeam = match.home_team_name || 'TBD';
@@ -243,7 +249,7 @@
             const matchStage = match.match_stage || '';
             const hasTv = match.has_tv_icon || false;
             const hasAudio = match.has_audio_icon || false;
-            
+
             // Determine score display
             let scoreDisplay = 'VS';
             if (homeScore !== null && awayScore !== null) {
@@ -251,7 +257,7 @@
             } else if (statusType === 'live' && currentMinute) {
                 scoreDisplay = `${homeScore || 0} - ${awayScore || 0}`;
             }
-            
+
             // Status badge
             let statusBadge = '';
             if (statusType === 'live') {
@@ -272,12 +278,12 @@
             } else {
                 statusBadge = `<span class="status-badge bg-gray-100 text-gray-800">${matchTime || 'TBD'}</span>`;
             }
-            
+
             // Icons
             let iconsHtml = '';
             if (hasTv) iconsHtml += '<i class="fas fa-tv text-blue-500" title="TV Broadcast"></i> ';
             if (hasAudio) iconsHtml += '<i class="fas fa-volume-up text-green-500" title="Audio"></i> ';
-            
+
             // Card color based on status
             let cardBg = 'bg-white border-gray-200';
             if (statusType === 'live') {
@@ -285,7 +291,7 @@
             } else if (statusType === 'scheduled') {
                 cardBg = 'bg-white border-blue-200';
             }
-            
+
             const cardHtml = `
                 <div class="match-card ${cardBg} border-2 rounded-xl p-6 shadow-md cursor-pointer" 
                      data-url="${matchUrl}"
@@ -462,4 +468,5 @@
         setInterval(loadMatches, 30000);
     </script>
 </body>
+
 </html>

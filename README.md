@@ -337,9 +337,59 @@ SELECT * FROM matches ORDER BY scraped_at DESC LIMIT 10;
 
 ## 🌐 Landing Page & API
 
-### API Server
+### Automatic Startup
 
-Start the Flask API server to serve match data:
+The web server **starts automatically** when you run the main application:
+
+```bash
+# In Docker
+./dc run
+
+# Or locally
+python main.py
+```
+
+The web server will start on `http://localhost:5000` and serve both:
+- **Frontend:** `http://localhost:5000/` - Beautiful landing page
+- **API:** `http://localhost:5000/api/matches` - REST API endpoints
+
+### Configuration
+
+Edit `config.py` to customize the web server:
+
+```python
+# Web server settings
+WEB_SERVER_ENABLED = True   # Set to False to disable web server
+WEB_SERVER_HOST = "0.0.0.0" # Host to bind to
+WEB_SERVER_PORT = 5000       # Port to bind to
+```
+
+### API Endpoints
+
+The API provides the following endpoints:
+
+- `GET /api/matches` - Get all matches grouped by status
+- `GET /api/matches/live` - Get only live matches
+- `GET /api/matches/scheduled` - Get only scheduled matches
+- `GET /api/matches/finished` - Get only finished matches
+- `GET /api/stats` - Get match statistics
+- `GET /api/health` - Health check endpoint
+
+### Frontend Features
+
+The frontend (`public/index.html`) automatically fetches data from the API and displays:
+- 🎨 Beautiful Tailwind CSS design with football theme
+- ⚽ Live match cards with scores and animations
+- 📊 Real-time statistics dashboard
+- 🔄 Auto-refresh every 30 seconds
+- 📱 Fully responsive design
+- ⚡ Lazy loading for better performance
+- 🎯 Click cards to view match details
+- 🚀 Single responsibility: API returns data, frontend renders it
+
+### Manual Server Start (Optional)
+
+If you want to run the web server separately:
 
 ```bash
 # In Docker
@@ -349,48 +399,7 @@ Start the Flask API server to serve match data:
 python app/landing_page.py
 ```
 
-The API runs on `http://localhost:5000` and provides the following endpoints:
-
-- `GET /api/matches` - Get all matches grouped by status
-- `GET /api/matches/live` - Get only live matches
-- `GET /api/matches/scheduled` - Get only scheduled matches
-- `GET /api/matches/finished` - Get only finished matches
-- `GET /api/stats` - Get match statistics
-- `GET /api/health` - Health check endpoint
-
-### Frontend
-
-The frontend (`public/index.html`) is a static HTML page that:
-- Fetches data from the API using JavaScript
-- Displays matches in beautiful cards with lazy loading
-- Auto-refreshes every 30 seconds
-- Implements lazy loading for better performance
-- Responsive design with Tailwind CSS
-
-**To use:**
-
-1. **Start the API server:**
-   ```bash
-   ./dc python app/landing_page.py
-   ```
-
-2. **Open the frontend:**
-   ```bash
-   # Open in browser
-   open public/index.html  # macOS
-   xdg-open public/index.html  # Linux
-   start public/index.html  # Windows
-   ```
-
-**Features:**
-- 🎨 Beautiful Tailwind CSS design with football theme
-- ⚽ Live match cards with scores and animations
-- 📊 Real-time statistics dashboard
-- 🔄 Auto-refresh every 30 seconds
-- 📱 Fully responsive design
-- ⚡ Lazy loading for better performance
-- 🎯 Click cards to view match details
-- 🚀 Single responsibility: API returns data, frontend renders it
+Then open `http://localhost:5000/` in your browser.
 
 ## 📄 JSON Export
 

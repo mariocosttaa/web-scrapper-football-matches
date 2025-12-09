@@ -1,17 +1,22 @@
 """
-Landing Page API
-================
-API endpoint that returns match data from database in JSON format.
-Single responsibility: Only returns data, no HTML generation.
+Landing Page API & Web Server
+==============================
+Flask application that serves:
+1. REST API endpoints for match data
+2. Static frontend files (public/index.html)
 """
 
-from flask import Flask, jsonify
+import os
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from db.database import get_all_matches, get_matches_by_status, count_matches
 from datetime import datetime
 
+# Get the project root directory
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PUBLIC_DIR = os.path.join(BASE_DIR, 'public')
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder=PUBLIC_DIR)
 CORS(app)  # Enable CORS for frontend requests
 
 
@@ -156,6 +161,34 @@ def health_check():
     }), 200
 
 
+@app.route('/')
+def index():
+    """Serve the main landing page."""
+    return send_from_directory(PUBLIC_DIR, 'index.html')
+
+
+@app.route('/<path:path>')
+def serve_static(path):
+    """Serve static files from public directory."""
+    return send_from_directory(PUBLIC_DIR, path)
+
+
+def run_server(host='0.0.0.0', port=5000, debug=False):
+    """
+    Run the Flask server.
+    
+    Args:
+        host: Host to bind to (default: 0.0.0.0)
+        port: Port to bind to (default: 5000)
+        debug: Enable debug mode (default: False)
+    """
+    print(f"🚀 Starting MarFutGames server...")
+    print(f"   🌐 Frontend: http://localhost:{port}/")
+    print(f"   🔌 API: http://localhost:{port}/api/matches")
+    print(f"   ❤️  Health: http://localhost:{port}/api/health")
+    app.run(host=host, port=port, debug=debug, threaded=True)
+
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    run_server(debug=True)
 
