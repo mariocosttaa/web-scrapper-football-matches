@@ -196,9 +196,8 @@ python -m test
 - `test/output/matches_summary.json` - Summary grouped by status
 
 **Test HTML Files:**
-- `test/outout-code.html` (priority)
-- `test/output-code.html`
-- `outputs/step-1/after_accept_cookies.html` (fallback)
+- `test/output-code.html` (priority) - **Put your HTML code here for testing**
+- `outputs/step-1/after_accept_cookies.html` (fallback - from actual scraper run)
 
 ### What Tests Do
 
@@ -206,6 +205,18 @@ python -m test
 2. Extract all matches using the same extraction logic as production
 3. Export to JSON (does NOT save to database)
 4. Display summary statistics
+
+### Test HTML File
+
+The test module looks for HTML files in this order:
+1. **`test/output-code.html`** - **Your test file** (put your HTML code here)
+2. `outputs/step-1/after_accept_cookies.html` - From actual scraper run (fallback)
+
+**To test with your own HTML:**
+1. Copy HTML code from the browser (after accepting cookies on FlashScore.pt)
+2. Paste it into `test/output-code.html`
+3. Run: `./dc test` or `python -m test`
+4. Check results in `test/output/matches.json`
 
 ## 🐛 Debugging
 
