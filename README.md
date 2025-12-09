@@ -1,12 +1,13 @@
 # ⚽ Web Scraper - FlashScore.pt
 
-A powerful web scraper for extracting live match data from FlashScore.pt, with SQLite database storage, JSON export capabilities, and Docker support.
+A powerful web scraper for extracting live match data from FlashScore.pt, with a modern frontend, REST API, SQLite database storage, and Docker support.
 
 ![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)
 ![Playwright](https://img.shields.io/badge/Playwright-1.48+-green.svg)
 ![BeautifulSoup](https://img.shields.io/badge/BeautifulSoup-4.12-orange.svg)
 ![SQLite](https://img.shields.io/badge/SQLite-3-lightgrey.svg)
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-cyan.svg)
 
 ## 📋 Table of Contents
 
@@ -15,11 +16,10 @@ A powerful web scraper for extracting live match data from FlashScore.pt, with S
 - [Project Structure](#-project-structure)
 - [Installation](#-installation)
 - [Usage](#-usage)
-- [Configuration](#-configuration)
-- [Testing](#-testing)
-- [Debugging](#-debugging)
-- [Database](#-database)
-- [JSON Export](#-json-export)
+- [Database Schema](#-database-schema)
+- [API Endpoints](#-api-endpoints)
+- [Frontend](#-frontend)
+- [Image Caching](#-image-caching)
 - [Docker Helper Script](#-docker-helper-script-dc)
 - [Troubleshooting](#-troubleshooting)
 
@@ -30,20 +30,20 @@ A powerful web scraper for extracting live match data from FlashScore.pt, with S
 | **Python** | 3.12+ | Core language |
 | **Playwright** | ≥1.48.0 | Browser automation & web scraping |
 | **BeautifulSoup4** | 4.12.2 | HTML parsing & data extraction |
-| **SQLite** | 3 | Database storage |
+| **SQLite** | 3 | Relational database storage |
+| **Flask** | Latest | REST API & Static File Serving |
+| **Tailwind CSS** | 3.4 | Frontend styling |
 | **Docker** | Latest | Containerization |
-| **Docker Compose** | Latest | Container orchestration |
 
 ## ✨ Features
 
 - ✅ **Automated Web Scraping** - Browser automation with Playwright
-- ✅ **Match Data Extraction** - Extracts all match details (teams, scores, times, leagues)
-- ✅ **SQLite Database** - Persistent storage with automatic schema migration
-- ✅ **JSON Export** - Export matches to JSON with summary by status
+- ✅ **Relational Database** - Normalized schema (Leagues, Teams, Matches)
+- ✅ **REST API** - Endpoints for matches, stats, and health checks
+- ✅ **Modern Frontend** - Responsive UI with Dark/Light mode, Search, and League Grouping
+- ✅ **Local Image Caching** - Downloads and serves team/league logos locally
 - ✅ **Docker Support** - Fully containerized with helper scripts
-- ✅ **Test Mode** - Test extraction from local HTML files
-- ✅ **Logging** - File-based logging (`app-log.log`)
-- ✅ **Error Handling** - Graceful error handling with detailed logging
+- ✅ **Logging** - Detailed file-based logging
 - ✅ **Scheduled Runs** - Optional automatic repeating mode
 
 ## 📁 Project Structure
@@ -52,46 +52,26 @@ A powerful web scraper for extracting live match data from FlashScore.pt, with S
 .
 ├── app/                          # Application logic
 │   ├── __init__.py
-│   ├── browser.py               # Browser management & Playwright setup
-│   ├── extract_matches.py       # HTML parsing & match data extraction
-│   ├── export_json.py           # JSON export functionality
-│   ├── helper.py                # Utility functions (print helpers, file ops)
-│   ├── landing_page.py          # Flask API for match data (REST API)
-│   ├── logger.py                # Logging configuration
-│   ├── step-1.py                # Step 1: Accept cookies
-│   ├── step-2.py                # Step 2: Click "Ao Vivo" button
-│   └── step-3.py                # Step 3: Extract live match data
+│   ├── browser.py               # Browser management
+│   ├── extract_matches.py       # HTML parsing & extraction
+│   ├── image_downloader.py      # Image downloading & caching
+│   ├── landing_page.py          # Flask API & Server
+│   ├── helper.py                # Utilities
+│   ├── logger.py                # Logging config
+│   └── step-*.py                # Scraper steps
 ├── db/                          # Database
 │   ├── database.py              # Database operations & schema
-│   └── matches.db               # SQLite database file (auto-created)
-├── test/                        # Test files
-│   ├── __init__.py
-│   ├── __main__.py              # Test entry point (run: python -m test)
-│   ├── output/                  # Test output (JSON files)
-│   │   ├── matches.json         # All extracted matches
-│   │   └── matches_summary.json # Summary grouped by status
-│   └── *.html                   # Test HTML files
-├── outputs/                     # Scraper output files
-│   ├── step-1/                  # After accepting cookies
-│   │   ├── after_accept_cookies.html
-│   │   └── after_accept_cookies.png
-│   ├── step-2/                  # After clicking "Ao Vivo"
-│   │   ├── after_click_ao_vivo.html
-│   │   └── after_click_ao_vivo.png
-│   ├── step-3/                  # Live matches data
-│   │   ├── live_matches_data.html
-│   │   └── live_matches_data.png
-│   └── matches_*.json           # Exported match data
-├── public/                      # Public web files
-│   └── index.html               # Landing page (generated from database)
-├── main.py                      # Main entry point
-├── config.py                    # Configuration settings
-├── dc                           # Docker helper script (./dc [command])
-├── docker-compose.yml            # Docker Compose configuration
-├── Dockerfile                   # Docker image definition
-├── requirements.txt             # Python dependencies
-├── app-log.log                  # Application logs (auto-created)
-└── README.md                    # This file
+│   └── matches.db               # SQLite database (auto-created)
+├── public/                      # Frontend & Static Files
+│   ├── index.html               # Main frontend interface
+│   └── images/                  # Downloaded images (teams/leagues)
+├── outputs/                     # Scraper debug outputs
+├── main.py                      # Scraper entry point
+├── start_server.py              # Web server entry point
+├── config.py                    # Configuration
+├── dc                           # Docker helper script
+├── docker-compose.yml           # Docker Compose config
+└── requirements.txt             # Python dependencies
 ```
 
 ## 🚀 Installation
@@ -104,492 +84,108 @@ A powerful web scraper for extracting live match data from FlashScore.pt, with S
    cd web-scrapping-app
    ```
 
-2. **Start the container (web server starts automatically):**
+2. **Start the application:**
    ```bash
    ./dc up
    ```
+   This starts the web server automatically at `http://localhost:8080`.
 
-3. **Access the web interface:**
-   - Frontend: http://localhost:5000/
-   - API: http://localhost:5000/api/matches
-
-4. **Run the scraper:**
+3. **Run the scraper:**
    ```bash
    ./dc run
    ```
-
-The web server starts automatically when the container starts. Use `./dc run` to execute the scraper.
+   This executes the scraper, populates the database, and downloads images.
 
 ### Option 2: Local Installation
 
 1. **Create a virtual environment:**
    ```bash
    python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   source venv/bin/activate
    ```
 
 2. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
-   ```
-
-3. **Install Playwright browsers:**
-   ```bash
    playwright install
    ```
 
-## 💻 Usage
-
-### Running the Scraper
-
-#### Docker (Recommended)
-
-```bash
-# Start container (doesn't run scraper automatically)
-./dc up
-
-# Run scraper manually
-./dc run
-
-# Or run directly
-./dc python main.py
-```
-
-#### Local
-
-```bash
-python main.py
-```
-
-**Note:** The scraper will only run automatically if `REPEAT_ENABLED = True` in `config.py`. Otherwise, it requires manual execution.
-
-### Automatic Mode vs Manual Mode
-
-- **Automatic Mode:** Set `REPEAT_ENABLED = True` in `config.py` - scraper runs automatically at intervals
-- **Manual Mode:** Set `REPEAT_ENABLED = False` in `config.py` - run with `./dc run` or `python main.py`
-
-## ⚙️ Configuration
-
-Edit `config.py` to customize the scraper:
-
-```python
-# Target URL
-URL = "https://www.flashscore.pt/"
-
-# Automatic repeating (set to True to enable)
-REPEAT_ENABLED = False
-
-# Repeat interval (only if REPEAT_ENABLED = True)
-REPEAT_INTERVAL_MINUTES = 5  # Run every 5 minutes
-
-# Browser settings
-VISUAL_MODE = False  # Set to True to see browser (headless by default)
-BROWSER_TYPE = "chromium"  # Options: "chromium", "firefox", "webkit"
-```
-
-**Important:** When `REPEAT_ENABLED = False`, the scraper will not run automatically. You must run it manually with `./dc run`.
-
-## 🧪 Testing
-
-### Test Match Extraction from HTML
-
-The test module extracts matches from local HTML files without running the full browser automation:
-
-```bash
-# In Docker
-./dc test
-
-# Or locally (if dependencies installed)
-python -m test
-```
-
-**Test Output:**
-- `test/output/matches.json` - All extracted matches
-- `test/output/matches_summary.json` - Summary grouped by status
-
-**Test HTML Files:**
-- `test/output-code.html` (priority) - **Put your HTML code here for testing**
-- `outputs/step-1/after_accept_cookies.html` (fallback - from actual scraper run)
-
-### What Tests Do
-
-1. Load HTML from test files
-2. Extract all matches using the same extraction logic as production
-3. Export to JSON (does NOT save to database)
-4. Display summary statistics
-
-### Test HTML File
-
-The test module looks for HTML files in this order:
-1. **`test/output-code.html`** - **Your test file** (put your HTML code here)
-2. `outputs/step-1/after_accept_cookies.html` - From actual scraper run (fallback)
-
-**To test with your own HTML:**
-1. Copy HTML code from the browser (after accepting cookies on FlashScore.pt)
-2. Paste it into `test/output-code.html`
-3. Run: `./dc test` or `python -m test`
-4. Check results in `test/output/matches.json`
-
-## 🐛 Debugging
-
-### View HTML Outputs
-
-After running the scraper, check the `outputs/` directory:
-
-```bash
-# View HTML files
-ls -la outputs/step-1/
-ls -la outputs/step-2/
-ls -la outputs/step-3/
-
-# Open HTML in browser (Docker)
-./dc exec cat outputs/step-1/after_accept_cookies.html
-
-# Or copy to local machine
-docker cp web-scraper-app:/app/outputs/step-1/after_accept_cookies.html ./
-```
-
-### View Screenshots
-
-Screenshots are saved alongside HTML files:
-- `outputs/step-1/after_accept_cookies.png`
-- `outputs/step-2/after_click_ao_vivo.png`
-- `outputs/step-3/live_matches_data.png`
-
-### View Logs
-
-```bash
-# Application logs
-tail -f app-log.log
-
-# Docker logs
-./dc logs
-
-# Follow logs in real-time
-./dc logs -f
-```
-
-### Debug Database
-
-```bash
-# View all matches
-./dc exec sqlite3 db/matches.db "SELECT COUNT(*) FROM matches;"
-
-# View specific match
-./dc exec sqlite3 db/matches.db "SELECT * FROM matches WHERE match_id = 'YOUR_MATCH_ID';"
-
-# View matches by status
-./dc exec sqlite3 db/matches.db "SELECT COUNT(*) FROM matches WHERE match_status = 'live';"
-```
-
-### Enable Visual Mode
-
-To see the browser while scraping (useful for debugging):
-
-1. Edit `config.py`:
-   ```python
-   VISUAL_MODE = True
-   ```
-
-2. Run the scraper:
+3. **Start the server:**
    ```bash
-   ./dc run
+   python start_server.py
    ```
 
-## 💾 Database
+4. **Run the scraper:**
+   ```bash
+   python main.py
+   ```
 
-### Database Location
+## 💾 Database Schema
 
-- **File:** `db/matches.db`
-- **Auto-created:** Yes, on first run
-- **Auto-migrated:** Yes, schema updates automatically
+The project uses a normalized SQLite database with the following tables:
 
-### Database Schema
+### `leagues`
+- `id`: Primary Key
+- `name`: League name
+- `country`: Country/Category
+- `flag_class`: CSS class for flag
+- `logo_url`: Local path to league logo
 
-The `matches` table contains:
+### `teams`
+- `id`: Primary Key
+- `name`: Team name
+- `logo_url`: Local path to team logo
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `match_id` | TEXT (UNIQUE) | Unique match identifier |
-| `match_url` | TEXT | URL to match page |
-| `league_name` | TEXT | League name |
-| `league_country` | TEXT | League country/category |
-| `match_time` | TEXT | Match time (e.g., "15:30") |
-| `home_team_name` | TEXT | Home team name |
-| `away_team_name` | TEXT | Away team name |
-| `home_score` | INTEGER | Home team score |
-| `away_score` | INTEGER | Away team score |
-| `match_status` | TEXT | Status: live, scheduled, finished, etc. |
-| `is_live` | BOOLEAN | Is match currently live |
-| `has_tv_icon` | BOOLEAN | Has TV broadcast icon |
-| `has_audio_icon` | BOOLEAN | Has audio icon |
-| `has_info_icon` | BOOLEAN | Has info icon |
-| `current_minute` | INTEGER | Current minute (if live) |
-| `scraped_at` | TIMESTAMP | When match was scraped |
-| `updated_at` | TIMESTAMP | Last update time |
+### `matches`
+- `match_id`: Unique Identifier (from source)
+- `league_id`: Foreign Key -> `leagues.id`
+- `home_team_id`: Foreign Key -> `teams.id`
+- `away_team_id`: Foreign Key -> `teams.id`
+- `home_score`: Integer
+- `away_score`: Integer
+- `match_status`: Status (live, scheduled, finished)
+- `match_time`: Time string (e.g., "15:30")
+- `match_date`: Date object
+- `is_live`: Boolean
 
-### Query Examples
+## 🔌 API Endpoints
 
-```sql
--- Count all matches
-SELECT COUNT(*) FROM matches;
+The Flask server (`start_server.py`) exposes:
 
--- Get all live matches
-SELECT * FROM matches WHERE match_status = 'live';
+- `GET /api/matches` - All matches grouped by status
+- `GET /api/matches/live` - Live matches only
+- `GET /api/matches/scheduled` - Scheduled matches only
+- `GET /api/matches/finished` - Finished matches only
+- `GET /api/stats` - Global statistics
+- `GET /api/health` - System health check
 
--- Get matches by league
-SELECT * FROM matches WHERE league_name LIKE '%Champions%';
+## 💻 Frontend
 
--- Get recent matches
-SELECT * FROM matches ORDER BY scraped_at DESC LIMIT 10;
-```
+The frontend is served at `http://localhost:8080/` and features:
+- **Live Data**: Fetches from `/api/matches`
+- **Search**: Filter matches by team or league
+- **Grouping**: Matches grouped by League
+- **Dark Mode**: Toggleable theme
+- **Responsive**: Mobile-friendly grid layout
 
-## 🌐 Landing Page & API
+## 🖼 Image Caching
 
-### Automatic Startup (Docker)
-
-When you start the Docker container, the web server **starts automatically**:
-
-```bash
-./dc up
-```
-
-The web server will start on `http://localhost:5000` and serve both:
-- **Frontend:** `http://localhost:5000/` - Beautiful landing page
-- **API:** `http://localhost:5000/api/matches` - REST API endpoints
-
-You'll see server information in the terminal when it starts.
-
-### Running the Scraper
-
-The scraper runs separately from the web server:
-
-```bash
-# In Docker (web server already running)
-./dc run
-
-# Or locally (if you want to run scraper only)
-python main.py
-```
-
-**Note:** `./dc run` only runs the scraper. The web server is started separately via `./dc up`.
-
-### Configuration
-
-Edit `config.py` to customize the web server:
-
-```python
-# Web server settings
-WEB_SERVER_ENABLED = True   # Set to False to disable web server
-WEB_SERVER_HOST = "0.0.0.0" # Host to bind to
-WEB_SERVER_PORT = 5000       # Port to bind to
-```
-
-### API Endpoints
-
-The API provides the following endpoints:
-
-- `GET /api/matches` - Get all matches grouped by status
-- `GET /api/matches/live` - Get only live matches
-- `GET /api/matches/scheduled` - Get only scheduled matches
-- `GET /api/matches/finished` - Get only finished matches
-- `GET /api/stats` - Get match statistics
-- `GET /api/health` - Health check endpoint
-
-### Frontend Features
-
-The frontend (`public/index.html`) automatically fetches data from the API and displays:
-- 🎨 Beautiful Tailwind CSS design with football theme
-- ⚽ Live match cards with scores and animations
-- 📊 Real-time statistics dashboard
-- 🔄 Auto-refresh every 30 seconds
-- 📱 Fully responsive design
-- ⚡ Lazy loading for better performance
-- 🎯 Click cards to view match details
-- 🚀 Single responsibility: API returns data, frontend renders it
-
-### Manual Server Start (Optional)
-
-If you want to run the web server separately:
-
-```bash
-# In Docker
-./dc python app/landing_page.py
-
-# Or locally
-python app/landing_page.py
-```
-
-Then open `http://localhost:5000/` in your browser.
-
-## 📄 JSON Export
-
-### Automatic Export
-
-JSON files are automatically generated during scraping:
-
-- **Location:** `outputs/matches_YYYY-MM-DD_HH-MM-SS.json`
-- **Contains:** All matches with full details
-- **Format:** JSON array of match objects
-
-### Summary Export
-
-Summary files group matches by status:
-
-- **Location:** `outputs/matches_summary_YYYY-MM-DD_HH-MM-SS.json`
-- **Contains:** Summary grouped by status (live, scheduled, finished, etc.)
-- **Format:** JSON object with status groups
-
-### Test Export
-
-Test mode exports to:
-- `test/output/matches.json` - All test matches
-- `test/output/matches_summary.json` - Test summary
-
-### JSON Structure
-
-```json
-{
-  "export_date": "2025-12-09T06:10:17",
-  "total_matches": 102,
-  "matches": [
-    {
-      "match_id": "KMICP6x0",
-      "home_team_name": "Kairat Almaty",
-      "away_team_name": "Olympiakos",
-      "match_time": "15:30",
-      "league_name": "Liga dos Campeões - Fase de Liga",
-      "match_status": "live",
-      "home_score": null,
-      "away_score": null
-    }
-  ]
-}
-```
+The system automatically downloads team and league logos to `public/images/`.
+- **Downloader**: `app/image_downloader.py` handles fetching and saving.
+- **Naming**: Files are named using team slugs (e.g., `kairat-almaty.png`).
+- **Storage**: Database stores the relative local path (e.g., `/images/teams/kairat-almaty.png`).
 
 ## 🐳 Docker Helper Script (`./dc`)
 
-The `./dc` script simplifies Docker commands. **Always use `./dc` prefix** (not just `dc`):
-
-### Basic Commands
-
-```bash
-./dc up          # Start containers
-./dc down        # Stop containers
-./dc build       # Build images
-./dc logs        # View logs
-./dc logs -f     # Follow logs in real-time
-./dc help        # Show all commands
-```
-
-### Application Commands
-
-```bash
-./dc run         # Run scraper (python main.py)
-./dc test        # Run tests (python -m test)
-./dc shell       # Open interactive shell in container
-```
-
-### Execute Any Command
-
-```bash
-# Run any command inside the container
-./dc python -m test
-./dc pip install package-name
-./dc ls -la
-./dc cat app-log.log
-./dc sqlite3 db/matches.db "SELECT COUNT(*) FROM matches;"
-```
-
-**Important:** The script must be run with `./dc` from the project root directory.
+- `./dc up` - Start web server container
+- `./dc run` - Run the scraper
+- `./dc logs` - View logs
+- `./dc shell` - Open shell in container
+- `./dc test` - Run tests
 
 ## 🔧 Troubleshooting
 
-### Container Won't Start
+- **Server not starting?** Check if port 8080 is free.
+- **Images missing?** Run `./dc run` to re-scrape and download images.
+- **Database errors?** Delete `db/matches.db` and run `./dc run` to recreate.
 
-```bash
-# Check if container is running
-./dc ps
-
-# View container logs
-./dc logs
-
-# Rebuild container
-./dc build --no-cache
-./dc up
-```
-
-### Database Issues
-
-```bash
-# Check database file
-ls -la db/matches.db
-
-# Verify database integrity
-./dc exec sqlite3 db/matches.db "PRAGMA integrity_check;"
-
-# Reset database (WARNING: deletes all data)
-rm db/matches.db
-./dc run  # Will recreate database
-```
-
-### Missing Dependencies
-
-```bash
-# In Docker (dependencies are pre-installed)
-# If you need to install additional packages:
-./dc pip install package-name
-
-# Locally
-pip install -r requirements.txt
-```
-
-### Playwright Browser Issues
-
-```bash
-# Install browsers (local)
-playwright install
-
-# In Docker, browsers are pre-installed
-# If issues occur, rebuild:
-./dc build --no-cache
-```
-
-### Permission Issues
-
-```bash
-# Make dc script executable
-chmod +x dc
-
-# Fix Docker permissions
-sudo chown -R $USER:$USER .
-```
-
-### Viewing Output Files
-
-```bash
-# List all outputs
-ls -la outputs/
-
-# View HTML file
-cat outputs/step-1/after_accept_cookies.html
-
-# Copy file from container to local
-docker cp web-scraper-app:/app/outputs/step-1/after_accept_cookies.html ./
-```
-
-## 📝 License
-
-This project is for educational purposes.
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
----
-
-**Made with ❤️ for web scraping enthusiasts**
