@@ -7,7 +7,12 @@ A powerful web scraper for extracting live match data from FlashScore.pt, with a
 ![BeautifulSoup](https://img.shields.io/badge/BeautifulSoup-4.12-orange.svg)
 ![SQLite](https://img.shields.io/badge/SQLite-3-lightgrey.svg)
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)
+![Flask](https://img.shields.io/badge/Flask-3.0-lightgrey.svg)
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow.svg)
+![HTML5](https://img.shields.io/badge/HTML5-Latest-orange.svg)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-cyan.svg)
+
+![Project Preview](presentation.gif)
 
 ## 📋 Table of Contents
 
@@ -41,6 +46,8 @@ A powerful web scraper for extracting live match data from FlashScore.pt, with a
 - ✅ **Relational Database** - Normalized schema (Leagues, Teams, Matches)
 - ✅ **REST API** - Endpoints for matches, stats, and health checks
 - ✅ **Modern Frontend** - Responsive UI with Dark/Light mode, Search, and League Grouping
+- ✅ **Live Match Events** - Red cards and live match minutes
+- ✅ **Advanced Filtering** - Filter by League, Status, and Search
 - ✅ **Local Image Caching** - Downloads and serves team/league logos locally
 - ✅ **Docker Support** - Fully containerized with helper scripts
 - ✅ **Logging** - Detailed file-based logging
@@ -143,9 +150,12 @@ The project uses a normalized SQLite database with the following tables:
 - `away_team_id`: Foreign Key -> `teams.id`
 - `home_score`: Integer
 - `away_score`: Integer
+- `home_red_cards`: Integer (New)
+- `away_red_cards`: Integer (New)
 - `match_status`: Status (live, scheduled, finished)
 - `match_time`: Time string (e.g., "15:30")
 - `match_date`: Date object
+- `current_minute`: Integer (Live minute)
 - `is_live`: Boolean
 
 ## 🔌 API Endpoints
