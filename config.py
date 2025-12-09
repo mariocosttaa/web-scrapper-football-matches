@@ -20,7 +20,7 @@ URL = "https://www.flashscore.pt/"
 # Web server settings for landing page API
 WEB_SERVER_ENABLED = True  # Set to True to start web server with application
 WEB_SERVER_HOST = "0.0.0.0"  # Host to bind to (0.0.0.0 for all interfaces)
-WEB_SERVER_PORT = 5000  # Port to bind to
+WEB_SERVER_PORT = 8080  # Port to bind to (changed from 5000 to avoid macOS AirPlay conflict)
 
 
 # ============================================================================

@@ -65,8 +65,8 @@ case "$COMMAND" in
         echo -e "${GREEN}Containers started!${NC}"
         sleep 2
         echo -e "${CYAN}🌐 Web server is starting automatically...${NC}"
-        echo -e "${CYAN}   Frontend: http://localhost:5000/${NC}"
-        echo -e "${CYAN}   API: http://localhost:5000/api/matches${NC}"
+        echo -e "${CYAN}   Frontend: http://localhost:8080/${NC}"
+        echo -e "${CYAN}   API: http://localhost:8080/api/matches${NC}"
         echo -e "${YELLOW}💡 Use './dc run' to execute the web scraper.${NC}"
         echo -e "${YELLOW}💡 Use './dc logs' to see server logs.${NC}"
         ;;

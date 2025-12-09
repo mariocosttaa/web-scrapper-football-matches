@@ -16,7 +16,7 @@ services:
     
     # Expose web server port
     ports:
-      - "5000:5000"  # Map host port 5000 to container port 5000
+      - "8080:8080"  # Map host port 8080 to container port 8080
     
     # Automatically start web server when container starts
     # Use ./dc run to run the scraper manually
