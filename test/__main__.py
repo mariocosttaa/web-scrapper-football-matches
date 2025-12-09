@@ -115,9 +115,8 @@ def test_extraction():
     
     # Try multiple possible HTML file locations
     html_files = [
-        "test/output-code.html",  # User's test file (put your HTML here)
-        "test/output-code.html",
-        "outputs/step-1/after_accept_cookies.html",
+        "test/output-code.html",  # User's test file (put your HTML code here)
+        "outputs/step-1/after_accept_cookies.html",  # Fallback from actual scraper run
     ]
     
     html_file = None
