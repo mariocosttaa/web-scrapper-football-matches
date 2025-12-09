@@ -56,6 +56,7 @@ A powerful web scraper for extracting live match data from FlashScore.pt, with S
 │   ├── extract_matches.py       # HTML parsing & match data extraction
 │   ├── export_json.py           # JSON export functionality
 │   ├── helper.py                # Utility functions (print helpers, file ops)
+│   ├── landing_page.py          # Flask API for match data (REST API)
 │   ├── logger.py                # Logging configuration
 │   ├── step-1.py                # Step 1: Accept cookies
 │   ├── step-2.py                # Step 2: Click "Ao Vivo" button
@@ -334,35 +335,62 @@ SELECT * FROM matches WHERE league_name LIKE '%Champions%';
 SELECT * FROM matches ORDER BY scraped_at DESC LIMIT 10;
 ```
 
-## 🌐 Landing Page
+## 🌐 Landing Page & API
 
-Generate a beautiful HTML landing page displaying all matches from the database:
+### API Server
+
+Start the Flask API server to serve match data:
 
 ```bash
 # In Docker
-./dc python -c "from app.generate_landing import generate_landing_page; generate_landing_page()"
+./dc python app/landing_page.py
 
 # Or locally
-python -c "from app.generate_landing import generate_landing_page; generate_landing_page()"
+python app/landing_page.py
 ```
 
-**Output:** `public/index.html`
+The API runs on `http://localhost:5000` and provides the following endpoints:
+
+- `GET /api/matches` - Get all matches grouped by status
+- `GET /api/matches/live` - Get only live matches
+- `GET /api/matches/scheduled` - Get only scheduled matches
+- `GET /api/matches/finished` - Get only finished matches
+- `GET /api/stats` - Get match statistics
+- `GET /api/health` - Health check endpoint
+
+### Frontend
+
+The frontend (`public/index.html`) is a static HTML page that:
+- Fetches data from the API using JavaScript
+- Displays matches in beautiful cards with lazy loading
+- Auto-refreshes every 30 seconds
+- Implements lazy loading for better performance
+- Responsive design with Tailwind CSS
+
+**To use:**
+
+1. **Start the API server:**
+   ```bash
+   ./dc python app/landing_page.py
+   ```
+
+2. **Open the frontend:**
+   ```bash
+   # Open in browser
+   open public/index.html  # macOS
+   xdg-open public/index.html  # Linux
+   start public/index.html  # Windows
+   ```
 
 **Features:**
-- 🎨 Beautiful Tailwind CSS design
-- ⚽ Live match cards with scores
-- 📊 Statistics dashboard
+- 🎨 Beautiful Tailwind CSS design with football theme
+- ⚽ Live match cards with scores and animations
+- 📊 Real-time statistics dashboard
 - 🔄 Auto-refresh every 30 seconds
-- 📱 Responsive design
+- 📱 Fully responsive design
+- ⚡ Lazy loading for better performance
 - 🎯 Click cards to view match details
-
-**To view:**
-```bash
-# Open in browser
-open public/index.html  # macOS
-xdg-open public/index.html  # Linux
-start public/index.html  # Windows
-```
+- 🚀 Single responsibility: API returns data, frontend renders it
 
 ## 📄 JSON Export
 
