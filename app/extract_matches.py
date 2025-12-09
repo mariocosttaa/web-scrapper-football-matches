@@ -7,9 +7,11 @@ Extracts match data from HTML files and saves to database.
 from bs4 import BeautifulSoup
 import re
 from datetime import datetime
+import unicodedata
 from typing import List, Dict, Any, Optional
 from db.database import insert_or_update_match, init_database
 from app.helper import print_info, print_success, print_error
+from app.image_downloader import get_local_image_path
 
 
 def parse_match_time(time_str: str) -> Optional[str]:
@@ -41,7 +43,28 @@ def parse_match_time(time_str: str) -> Optional[str]:
         except:
             return time_str
     
-    return time_str
+    return None
+
+
+def slugify(text: str) -> str:
+    """
+    Convert text to a slug (lowercase, hyphens, no special chars).
+    Example: "Kairat Almaty" -> "kairat-almaty"
+    """
+    if not text:
+        return ""
+    
+    # Normalize unicode characters
+    text = unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8')
+    
+    # Convert to lowercase
+    text = text.lower()
+    
+    # Replace non-alphanumeric characters with hyphens
+    text = re.sub(r'[^a-z0-9]+', '-', text)
+    
+    # Remove leading/trailing hyphens
+    return text.strip('-')
 
 
 def extract_match_status(match_element) -> Dict[str, Any]:
@@ -58,7 +81,7 @@ def extract_match_status(match_element) -> Dict[str, Any]:
     class_str = ' '.join(classes)
     
     status_info = {
-        'is_live': 'event__match--live' in class_str or 'event__match--twoLine' in class_str,
+        'is_live': 'event__match--live' in class_str,
         'is_scheduled': 'event__match--scheduled' in class_str,
         'is_finished': 'event__match--finished' in class_str or 'event__match--last' in class_str,
         'is_canceled': False,
@@ -204,6 +227,13 @@ def extract_match_data(match_element, league_info: Dict[str, Optional[str]]) -> 
             logo_elem = home_participant.find('img', {'data-testid': 'wcl-participantLogo'})
             if logo_elem:
                 home_team_logo = logo_elem.get('src', '')
+                # Download and use local path
+                if home_team_logo:
+                    # Use team name slug as filename
+                    slug = slugify(home_team_name) if home_team_name else None
+                    local_path = get_local_image_path(home_team_logo, 'teams', slug)
+                    if local_path:
+                        home_team_logo = local_path
         
         # Extract away team
         away_participant = match_element.find('div', class_='event__awayParticipant')
@@ -216,6 +246,13 @@ def extract_match_data(match_element, league_info: Dict[str, Optional[str]]) -> 
             logo_elem = away_participant.find('img', {'data-testid': 'wcl-participantLogo'})
             if logo_elem:
                 away_team_logo = logo_elem.get('src', '')
+                # Download and use local path
+                if away_team_logo:
+                    # Use team name slug as filename
+                    slug = slugify(away_team_name) if away_team_name else None
+                    local_path = get_local_image_path(away_team_logo, 'teams', slug)
+                    if local_path:
+                        away_team_logo = local_path
         
         # Extract scores
         home_score = None

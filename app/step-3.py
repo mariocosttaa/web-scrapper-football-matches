@@ -67,16 +67,24 @@ def execute_step_3(page: Page) -> bool:
     if live_matches_loaded:
         print_success("Live matches table found")
         
-        # TODO: Add your data extraction logic here
-        # Example:
-        # matches = page.query_selector_all('.match-row')
-        # for match in matches:
-        #     team1 = get_element_text(match, '.team1')
-        #     team2 = get_element_text(match, '.team2')
-        #     score = get_element_text(match, '.score')
-        #     print_info(f"Match: {team1} vs {team2} - {score}")
+        # Import extraction functions
+        from app.extract_matches import extract_match_data, save_matches_to_database
         
-        print_info("Data extraction completed (customize this step as needed)")
+        # Extract data
+        print_info("Extracting match data...")
+        matches = extract_match_data(page)
+        
+        if matches:
+            print_success(f"Extracted {len(matches)} matches")
+            
+            # Save to database
+            print_info("Saving to database...")
+            save_matches_to_database(matches)
+            print_success("Data saved to database")
+        else:
+            print_error("No matches extracted")
+        
+        print_info("Data extraction completed")
     else:
         print_error("Live matches table not found")
     
