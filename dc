@@ -21,6 +21,7 @@ set -e
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Get the directory where the script is located
@@ -62,8 +63,12 @@ case "$COMMAND" in
         echo -e "${GREEN}Starting containers...${NC}"
         $DOCKER_COMPOSE up -d
         echo -e "${GREEN}Containers started!${NC}"
-        echo -e "${BLUE}Container is running but not executing anything automatically.${NC}"
-        echo -e "${BLUE}Use './dc run' or './dc python main.py' to run the scraper.${NC}"
+        sleep 2
+        echo -e "${CYAN}🌐 Web server is starting automatically...${NC}"
+        echo -e "${CYAN}   Frontend: http://localhost:5000/${NC}"
+        echo -e "${CYAN}   API: http://localhost:5000/api/matches${NC}"
+        echo -e "${YELLOW}💡 Use './dc run' to execute the web scraper.${NC}"
+        echo -e "${YELLOW}💡 Use './dc logs' to see server logs.${NC}"
         ;;
     
     down|stop)
