@@ -393,8 +393,13 @@
                                             <img src="${match.home_team_logo_url}" alt="${match.home_team_name}" class="w-full h-full object-contain" onerror="this.src='https://via.placeholder.com/64?text=?'">
                                         </div>
                                     </div>
-                                    <span class="text-sm font-semibold text-gray-800 dark:text-gray-200 leading-tight line-clamp-2 h-10 flex items-center justify-center">
+                                    <span class="text-sm font-semibold text-gray-800 dark:text-gray-200 leading-tight line-clamp-2 h-10 flex items-center justify-center gap-1.5">
                                         ${match.home_team_name}
+                                        ${match.home_red_cards > 0 ? `
+                                            <div class="flex gap-0.5">
+                                                ${Array(match.home_red_cards).fill('<div class="w-2.5 h-3.5 bg-red-600 rounded-[1px] shadow-sm" title="Red Card"></div>').join('')}
+                                            </div>
+                                        ` : ''}
                                     </span>
                                 </div>
 
@@ -413,8 +418,13 @@
                                             <img src="${match.away_team_logo_url}" alt="${match.away_team_name}" class="w-full h-full object-contain" onerror="this.src='https://via.placeholder.com/64?text=?'">
                                         </div>
                                     </div>
-                                    <span class="text-sm font-semibold text-gray-800 dark:text-gray-200 leading-tight line-clamp-2 h-10 flex items-center justify-center">
+                                    <span class="text-sm font-semibold text-gray-800 dark:text-gray-200 leading-tight line-clamp-2 h-10 flex items-center justify-center gap-1.5">
                                         ${match.away_team_name}
+                                        ${match.away_red_cards > 0 ? `
+                                            <div class="flex gap-0.5">
+                                                ${Array(match.away_red_cards).fill('<div class="w-2.5 h-3.5 bg-red-600 rounded-[1px] shadow-sm" title="Red Card"></div>').join('')}
+                                            </div>
+                                        ` : ''}
                                     </span>
                                 </div>
                             </div>

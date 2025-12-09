@@ -107,6 +107,9 @@ def init_database():
             home_score INTEGER,
             away_score INTEGER,
             
+            home_red_cards INTEGER DEFAULT 0,
+            away_red_cards INTEGER DEFAULT 0,
+            
             match_status TEXT,
             match_stage TEXT,
             
@@ -131,6 +134,16 @@ def init_database():
             FOREIGN KEY (away_team_id) REFERENCES teams (id)
         )
     """)
+    
+    # Check if red card columns exist (for migration)
+    cursor.execute("PRAGMA table_info(matches)")
+    columns = [col[1] for col in cursor.fetchall()]
+    if 'home_red_cards' not in columns:
+        print("⚠️  Migrating 'matches' table: Adding 'home_red_cards' column...")
+        cursor.execute("ALTER TABLE matches ADD COLUMN home_red_cards INTEGER DEFAULT 0")
+    if 'away_red_cards' not in columns:
+        print("⚠️  Migrating 'matches' table: Adding 'away_red_cards' column...")
+        cursor.execute("ALTER TABLE matches ADD COLUMN away_red_cards INTEGER DEFAULT 0")
     
     # Indexes
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_match_id ON matches(match_id)")
@@ -234,6 +247,8 @@ def insert_or_update_match(match_data: Dict[str, Any]) -> bool:
                     scheduled_datetime = ?,
                     home_score = ?,
                     away_score = ?,
+                    home_red_cards = ?,
+                    away_red_cards = ?,
                     match_status = ?,
                     match_stage = ?,
                     is_live = ?,
@@ -258,6 +273,8 @@ def insert_or_update_match(match_data: Dict[str, Any]) -> bool:
                 scheduled_dt,
                 match_data.get('home_score'),
                 match_data.get('away_score'),
+                match_data.get('home_red_cards', 0),
+                match_data.get('away_red_cards', 0),
                 match_data.get('match_status'),
                 match_data.get('match_stage'),
                 match_data.get('is_live', False),
@@ -277,10 +294,11 @@ def insert_or_update_match(match_data: Dict[str, Any]) -> bool:
                 INSERT INTO matches (
                     match_id, match_url, league_id, home_team_id, away_team_id,
                     match_time, match_date, scheduled_datetime, home_score, away_score,
+                    home_red_cards, away_red_cards,
                     match_status, match_stage, is_live, is_scheduled, is_finished,
                     is_canceled, is_postponed, has_tv_icon, has_audio_icon, has_info_icon,
                     half_time, current_minute
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 match_data.get('match_id'),
                 match_data.get('match_url'),
@@ -292,6 +310,8 @@ def insert_or_update_match(match_data: Dict[str, Any]) -> bool:
                 scheduled_dt,
                 match_data.get('home_score'),
                 match_data.get('away_score'),
+                match_data.get('home_red_cards', 0),
+                match_data.get('away_red_cards', 0),
                 match_data.get('match_status'),
                 match_data.get('match_stage'),
                 match_data.get('is_live', False),

@@ -220,6 +220,8 @@ def extract_match_data(match_element, league_info: Dict[str, Optional[str]]) -> 
         home_participant = match_element.find('div', class_='event__homeParticipant')
         home_team_name = None
         home_team_logo = None
+        home_red_cards = 0
+        
         if home_participant:
             name_elem = home_participant.find('span', class_=re.compile(r'wcl-name|simpleText'))
             if name_elem:
@@ -234,11 +236,17 @@ def extract_match_data(match_element, league_info: Dict[str, Optional[str]]) -> 
                     local_path = get_local_image_path(home_team_logo, 'teams', slug)
                     if local_path:
                         home_team_logo = local_path
+            
+            # Extract home red cards
+            red_cards = home_participant.find_all('svg', {'data-testid': 'wcl-icon-incidents-red-card'})
+            home_red_cards = len(red_cards)
         
         # Extract away team
         away_participant = match_element.find('div', class_='event__awayParticipant')
         away_team_name = None
         away_team_logo = None
+        away_red_cards = 0
+        
         if away_participant:
             name_elem = away_participant.find('span', class_=re.compile(r'wcl-name|simpleText'))
             if name_elem:
@@ -253,6 +261,10 @@ def extract_match_data(match_element, league_info: Dict[str, Optional[str]]) -> 
                     local_path = get_local_image_path(away_team_logo, 'teams', slug)
                     if local_path:
                         away_team_logo = local_path
+            
+            # Extract away red cards
+            red_cards = away_participant.find_all('svg', {'data-testid': 'wcl-icon-incidents-red-card'})
+            away_red_cards = len(red_cards)
         
         # Extract scores
         home_score = None
@@ -289,8 +301,10 @@ def extract_match_data(match_element, league_info: Dict[str, Optional[str]]) -> 
             # Look for HT (half-time) or minute indicators
             if 'HT' in match_stage.upper() or 'Intervalo' in match_stage:
                 half_time = 'HT'
-            elif re.search(r"(\d+)'", match_stage):
-                minute_match = re.search(r"(\d+)'", match_stage)
+            elif re.search(r"(\d+)", match_stage):
+                # Extract just the number, handling "45+1" or "90+3" if present, though usually it's just "45" in stage
+                # But sometimes stage is "45+2'"
+                minute_match = re.search(r"(\d+)", match_stage)
                 if minute_match:
                     current_minute = int(minute_match.group(1))
         
@@ -318,6 +332,8 @@ def extract_match_data(match_element, league_info: Dict[str, Optional[str]]) -> 
             'away_team_logo_url': away_team_logo,
             'home_score': home_score,
             'away_score': away_score,
+            'home_red_cards': home_red_cards,
+            'away_red_cards': away_red_cards,
             'match_status': status_info['match_status'],
             'match_stage': match_stage,
             'is_live': status_info['is_live'],
