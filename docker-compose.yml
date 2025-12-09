@@ -11,8 +11,12 @@ services:
       - .:/app
       # Only persist outputs folder (code changes don't need rebuild)
       - ./outputs:/app/outputs
-      # Persist db directory (contains matches.db and any other database files)
-      - ./db:/app/db
+    # Persist db directory (contains matches.db and any other database files)
+    - ./db:/app/db
+    
+    # Expose web server port
+    ports:
+      - "5000:5000"  # Map host port 5000 to container port 5000
     
     # Automatically start web server when container starts
     # Use ./dc run to run the scraper manually
