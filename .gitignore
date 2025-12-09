@@ -15,6 +15,7 @@ db/matches.db
 # Outputs
 outputs/
 test/output/
+public/index.html  # Generated landing page (regenerate with: python -c "from app.generate_landing import generate_landing_page; generate_landing_page()")
 
 # Logs
 app-log.log

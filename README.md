@@ -81,6 +81,8 @@ A powerful web scraper for extracting live match data from FlashScore.pt, with S
 │   │   ├── live_matches_data.html
 │   │   └── live_matches_data.png
 │   └── matches_*.json           # Exported match data
+├── public/                      # Public web files
+│   └── index.html               # Landing page (generated from database)
 ├── main.py                      # Main entry point
 ├── config.py                    # Configuration settings
 ├── dc                           # Docker helper script (./dc [command])
@@ -330,6 +332,36 @@ SELECT * FROM matches WHERE league_name LIKE '%Champions%';
 
 -- Get recent matches
 SELECT * FROM matches ORDER BY scraped_at DESC LIMIT 10;
+```
+
+## 🌐 Landing Page
+
+Generate a beautiful HTML landing page displaying all matches from the database:
+
+```bash
+# In Docker
+./dc python -c "from app.generate_landing import generate_landing_page; generate_landing_page()"
+
+# Or locally
+python -c "from app.generate_landing import generate_landing_page; generate_landing_page()"
+```
+
+**Output:** `public/index.html`
+
+**Features:**
+- 🎨 Beautiful Tailwind CSS design
+- ⚽ Live match cards with scores
+- 📊 Statistics dashboard
+- 🔄 Auto-refresh every 30 seconds
+- 📱 Responsive design
+- 🎯 Click cards to view match details
+
+**To view:**
+```bash
+# Open in browser
+open public/index.html  # macOS
+xdg-open public/index.html  # Linux
+start public/index.html  # Windows
 ```
 
 ## 📄 JSON Export
