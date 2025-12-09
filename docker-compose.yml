@@ -1,0 +1,48 @@
+services:
+  web-scraper:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: web-scraper-app
+    
+    # Mount the entire project directory so container has same structure
+    volumes:
+      # Mount current directory to /app (code comes from here, not COPY in Dockerfile)
+      - .:/app
+      # Only persist outputs folder (code changes don't need rebuild)
+      - ./outputs:/app/outputs
+      # Persist db directory (contains matches.db and any other database files)
+      - ./db:/app/db
+    
+    # Don't run anything automatically - only run when manually commanded
+    # Use ./dc run or ./dc exec python main.py to run the scraper
+    command: tail -f /dev/null  # Keep container running but do nothing
+    
+    # Don't auto-restart - only start manually with ./dc up
+    restart: "no"
+    
+    # Keep container running even if command completes
+    # This is useful if REPEAT_ENABLED is True in config.py
+    stdin_open: true
+    tty: true
+    
+    # Environment variables for logging
+    environment:
+      - PYTHONUNBUFFERED=1  # Don't buffer Python output (see logs immediately)
+      - DEBUG_MODE=${DEBUG_MODE:-false}  # Can override from .env file
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"      # Rotate log when it reaches 10MB
+        max-file: "3"        # Keep 3 rotated log files
+        labels: "service,environment"
+    
+    # Health check (optional - checks if container is running)
+    healthcheck:
+      test: ["CMD", "test", "-f", "/app/outputs/step-1/after_accept_cookies.html"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
