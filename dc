@@ -1,0 +1,165 @@
+#!/bin/bash
+# Docker Compose Helper Script
+# Usage: ./dc [docker-compose-command] OR ./dc [any-terminal-command]
+# 
+# Docker Compose commands:
+#   ./dc up          - Start containers
+#   ./dc down        - Stop containers
+#   ./dc build       - Build images
+#   ./dc logs        - Show logs
+#
+# Terminal commands (run inside container):
+#   ./dc python main.py    - Run scraper
+#   ./dc python -m test    - Run tests
+#   ./dc pip install ...   - Install packages
+#   ./dc ls                - List files
+#   ./dc [any command]     - Run any command
+
+set -e
+
+# Colors for output
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Get the directory where the script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+# Check if docker-compose is available
+if ! command -v docker-compose &> /dev/null; then
+    DOCKER_COMPOSE="docker compose"
+else
+    DOCKER_COMPOSE="docker-compose"
+fi
+
+# Check if container is running
+is_container_running() {
+    $DOCKER_COMPOSE ps 2>/dev/null | grep -q "web-scraper-app.*Up" || return 1
+}
+
+# Ensure container is running
+ensure_container_running() {
+    if ! is_container_running; then
+        echo -e "${YELLOW}Container not running. Starting container...${NC}"
+        $DOCKER_COMPOSE up -d
+        sleep 2
+        if ! is_container_running; then
+            echo -e "${YELLOW}Failed to start container. Building first...${NC}"
+            $DOCKER_COMPOSE build
+            $DOCKER_COMPOSE up -d
+            sleep 2
+        fi
+    fi
+}
+
+# Parse command
+COMMAND="${1:-help}"
+
+case "$COMMAND" in
+    up|start)
+        echo -e "${GREEN}Starting containers...${NC}"
+        $DOCKER_COMPOSE up -d
+        echo -e "${GREEN}Containers started!${NC}"
+        echo -e "${BLUE}Container is running but not executing anything automatically.${NC}"
+        echo -e "${BLUE}Use './dc run' or './dc python main.py' to run the scraper.${NC}"
+        ;;
+    
+    down|stop)
+        echo -e "${YELLOW}Stopping containers...${NC}"
+        $DOCKER_COMPOSE down
+        echo -e "${GREEN}Containers stopped!${NC}"
+        ;;
+    
+    build)
+        echo -e "${GREEN}Building images...${NC}"
+        $DOCKER_COMPOSE build
+        echo -e "${GREEN}Build complete!${NC}"
+        ;;
+    
+    rebuild)
+        echo -e "${GREEN}Rebuilding images (no cache)...${NC}"
+        $DOCKER_COMPOSE build --no-cache
+        echo -e "${GREEN}Rebuild complete!${NC}"
+        ;;
+    
+    test)
+        ensure_container_running
+        echo -e "${GREEN}Running tests in container...${NC}"
+        $DOCKER_COMPOSE exec web-scraper python -m test
+        ;;
+    
+    run)
+        ensure_container_running
+        echo -e "${GREEN}Running scraper in container...${NC}"
+        $DOCKER_COMPOSE exec web-scraper python main.py
+        ;;
+    
+    logs)
+        echo -e "${GREEN}Showing logs...${NC}"
+        $DOCKER_COMPOSE logs -f
+        ;;
+    
+    shell|bash)
+        ensure_container_running
+        echo -e "${GREEN}Opening shell in container...${NC}"
+        $DOCKER_COMPOSE exec web-scraper /bin/bash
+        ;;
+    
+    ps|status)
+        echo -e "${GREEN}Container status:${NC}"
+        $DOCKER_COMPOSE ps
+        ;;
+    
+    restart)
+        echo -e "${YELLOW}Restarting containers...${NC}"
+        $DOCKER_COMPOSE restart
+        echo -e "${GREEN}Containers restarted!${NC}"
+        ;;
+    
+    clean)
+        echo -e "${YELLOW}Cleaning up containers and volumes...${NC}"
+        $DOCKER_COMPOSE down -v
+        echo -e "${GREEN}Cleanup complete!${NC}"
+        ;;
+    
+    help|--help|-h)
+        echo -e "${BLUE}Docker Compose Helper - Usage:${NC}"
+        echo ""
+        echo -e "${GREEN}Docker Compose Commands:${NC}"
+        echo "  ./dc up          - Start containers (doesn't run scraper automatically)"
+        echo "  ./dc down        - Stop containers"
+        echo "  ./dc build       - Build images"
+        echo "  ./dc rebuild     - Rebuild images (no cache)"
+        echo "  ./dc logs        - Show logs (follow mode)"
+        echo "  ./dc ps          - Show container status"
+        echo "  ./dc restart     - Restart containers"
+        echo "  ./dc clean       - Stop and remove containers/volumes"
+        echo ""
+        echo -e "${GREEN}Terminal Commands (run inside container):${NC}"
+        echo "  ./dc run              - Run scraper (python main.py)"
+        echo "  ./dc test             - Run tests (python -m test)"
+        echo "  ./dc shell            - Open shell in container"
+        echo "  ./dc python main.py   - Run any Python script"
+        echo "  ./dc pip install ...  - Install packages"
+        echo "  ./dc [any command]    - Run any command in container"
+        echo ""
+        echo -e "${GREEN}Examples:${NC}"
+        echo "  ./dc up                    # Start container"
+        echo "  ./dc run                   # Run scraper"
+        echo "  ./dc test                  # Run tests"
+        echo "  ./dc python -m test        # Run tests (alternative)"
+        echo "  ./dc pip install requests  # Install package"
+        echo "  ./dc ls -la                # List files"
+        echo "  ./dc logs                  # View logs"
+        ;;
+    
+    *)
+        # If it's not a known docker-compose command, treat it as a terminal command
+        # to run inside the container
+        ensure_container_running
+        echo -e "${GREEN}Executing in container: $@${NC}"
+        $DOCKER_COMPOSE exec web-scraper "$@"
+        ;;
+esac
