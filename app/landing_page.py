@@ -7,7 +7,7 @@ Flask application that serves:
 """
 
 import os
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify, send_from_directory, send_file
 from flask_cors import CORS
 from db.database import get_all_matches, get_matches_by_status, count_matches
 from datetime import datetime
@@ -18,6 +18,18 @@ PUBLIC_DIR = os.path.join(BASE_DIR, 'public')
 
 app = Flask(__name__, static_folder=PUBLIC_DIR)
 CORS(app)  # Enable CORS for frontend requests
+
+
+@app.route('/favicon.ico')
+def favicon_ico():
+    """Serve favicon.ico (fallback for older browsers)."""
+    return send_from_directory(PUBLIC_DIR, 'favicon.svg', mimetype='image/svg+xml')
+
+
+@app.route('/favicon.svg')
+def favicon_svg():
+    """Serve favicon.svg."""
+    return send_from_directory(PUBLIC_DIR, 'favicon.svg', mimetype='image/svg+xml')
 
 
 @app.route('/api/matches', methods=['GET'])
