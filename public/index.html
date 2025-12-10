@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" class="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MarFut - Live Football</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" href="/favicon.svg">
+    <meta name="theme-color" content="#059669">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -36,41 +40,55 @@
     </script>
     <style>
         /* Custom Scrollbar */
-        ::-webkit-scrollbar {
+        
+         ::-webkit-scrollbar {
             width: 8px;
         }
-        ::-webkit-scrollbar-track {
+        
+         ::-webkit-scrollbar-track {
             background: transparent;
         }
-        ::-webkit-scrollbar-thumb {
+        
+         ::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 4px;
         }
+        
         .dark ::-webkit-scrollbar-thumb {
             background: #475569;
         }
-        ::-webkit-scrollbar-thumb:hover {
+        
+         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
+        
         .dark ::-webkit-scrollbar-thumb:hover {
             background: #64748b;
         }
-
         /* Glassmorphism */
+        
         .glass {
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
         }
+        
         .dark .glass {
             background: rgba(15, 23, 42, 0.8);
         }
-
         /* Animations */
+        
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
+        
         .animate-fade-in {
             animation: fadeIn 0.4s ease-out forwards;
         }
@@ -79,13 +97,24 @@
             box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
             animation: pulse-red 2s infinite;
         }
+        
         @keyframes pulse-red {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
         }
     </style>
 </head>
+
 <body class="bg-gray-50 text-gray-900 dark:bg-slate-900 dark:text-white transition-colors duration-300 min-h-screen flex flex-col">
 
     <!-- Navbar -->
@@ -105,8 +134,7 @@
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fas fa-search text-gray-400 group-focus-within:text-marfut-500 transition-colors"></i>
                     </div>
-                    <input type="text" id="search-input" 
-                        class="block w-full pl-10 pr-3 py-2 border border-gray-200 dark:border-slate-700 rounded-full leading-5 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-marfut-500 focus:border-marfut-500 sm:text-sm transition-all shadow-sm" 
+                    <input type="text" id="search-input" class="block w-full pl-10 pr-3 py-2 border border-gray-200 dark:border-slate-700 rounded-full leading-5 bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-marfut-500 focus:border-marfut-500 sm:text-sm transition-all shadow-sm"
                         placeholder="Search teams, leagues...">
                 </div>
             </div>
@@ -134,7 +162,7 @@
 
     <!-- Main Content -->
     <main class="flex-grow container mx-auto px-4 pt-24 pb-12">
-        
+
         <!-- Hero / Stats -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <!-- Live Card -->
@@ -199,7 +227,7 @@
                     Finished
                 </button>
             </div>
-            
+
             <!-- Mobile League Filter -->
             <div class="block md:hidden w-full">
                 <div class="relative">
@@ -266,7 +294,7 @@
                 // Fetch from API
                 const response = await fetch('/api/matches');
                 const data = await response.json();
-                
+
                 if (data.success && data.matches) {
                     allMatches = data.matches;
                     updateStats();
@@ -300,24 +328,24 @@
             const leagueSelect = document.getElementById('league-filter');
             const leagueSelectMobile = document.getElementById('league-filter-mobile');
             const leagues = new Set();
-            
+
             allMatches.forEach(match => {
                 if (match.league_name) {
                     leagues.add(match.league_name);
                 }
             });
-            
+
             const sortedLeagues = Array.from(leagues).sort();
-            
+
             const options = sortedLeagues.map(league => `<option value="${league}">${league}</option>`).join('');
-            
+
             leagueSelect.innerHTML = '<option value="all">All Leagues</option>' + options;
             leagueSelectMobile.innerHTML = '<option value="all">All Leagues</option>' + options;
         }
 
         function filterMatches(filter) {
             currentFilter = filter;
-            
+
             // Update UI
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 if (btn.dataset.filter === filter) {
@@ -355,7 +383,7 @@
             const container = document.getElementById('matches-container');
             const emptyState = document.getElementById('empty-state');
             const leagueFilter = document.getElementById('league-filter').value;
-            
+
             // 1. Filter by Status
             let filtered = allMatches;
             if (currentFilter !== 'all') {
@@ -369,7 +397,7 @@
 
             // 3. Filter by Search Term
             if (searchTerm) {
-                filtered = filtered.filter(m => 
+                filtered = filtered.filter(m =>
                     (m.home_team_name && m.home_team_name.toLowerCase().includes(searchTerm)) ||
                     (m.away_team_name && m.away_team_name.toLowerCase().includes(searchTerm)) ||
                     (m.league_name && m.league_name.toLowerCase().includes(searchTerm))
@@ -383,20 +411,20 @@
             }
 
             emptyState.classList.add('hidden');
-            
+
             // 4. Group by League
             const leagues = groupMatchesByLeague(filtered);
 
             // 5. Render Groups
             container.innerHTML = leagues.map((league, leagueIndex) => {
-                const matchesHtml = league.matches.map((match, matchIndex) => {
-                    const isLive = match.match_status === 'live';
-                    const isFinished = match.match_status === 'finished';
-                    
-                    // Status Badge Logic
-                    let statusBadge = '';
-                    if (isLive) {
-                        statusBadge = `
+                        const matchesHtml = league.matches.map((match, matchIndex) => {
+                                    const isLive = match.match_status === 'live';
+                                    const isFinished = match.match_status === 'finished';
+
+                                    // Status Badge Logic
+                                    let statusBadge = '';
+                                    if (isLive) {
+                                        statusBadge = `
                             <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold border border-red-500/20">
                                 <span class="w-1.5 h-1.5 rounded-full bg-red-500 live-indicator"></span>
                                 LIVE ${match.current_minute ? `<span class="opacity-75 ml-1">${match.current_minute}'</span>` : ''}
@@ -519,7 +547,7 @@
         // Init
         filterMatches('all'); // Set initial state
         loadMatches();
-
     </script>
 </body>
+
 </html>

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Background with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#059669;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#047857;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="48" fill="url(#bgGradient)" stroke="#065f46" stroke-width="2"/>
+  
+  <!-- Football/soccer ball - simplified design -->
+  <!-- Top pentagon -->
+  <path d="M 50 15 L 60 25 L 55 40 L 45 40 L 40 25 Z" fill="#10b981" opacity="0.7"/>
+  <!-- Bottom pentagon -->
+  <path d="M 50 85 L 60 75 L 55 60 L 45 60 L 40 75 Z" fill="#10b981" opacity="0.7"/>
+  <!-- Left pentagon -->
+  <path d="M 15 50 L 25 40 L 40 45 L 40 55 L 25 60 Z" fill="#34d399" opacity="0.6"/>
+  <!-- Right pentagon -->
+  <path d="M 85 50 L 75 40 L 60 45 L 60 55 L 75 60 Z" fill="#34d399" opacity="0.6"/>
+  
+  <!-- Center circle for ball center -->
+  <circle cx="50" cy="50" r="6" fill="#ffffff" opacity="0.95"/>
+  
+  <!-- Letter M for MarFut - bold and centered -->
+  <text x="50" y="62" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#ffffff" text-anchor="middle" stroke="#047857" stroke-width="0.5">M</text>
+</svg>
+
