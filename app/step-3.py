@@ -27,13 +27,14 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 from app.helper import (
     save_html_and_screenshot,
-    get_element_text,
     wait_for_element,
     print_step_header,
     print_success,
     print_info,
     print_error
 )
+from db.database import init_database
+from app.extract_matches import extract_all_matches_from_html, save_matches_to_database
 
 # Step configuration
 STEP_NUMBER = 3
@@ -67,35 +68,54 @@ def execute_step_3(page: Page) -> bool:
     if live_matches_loaded:
         print_success("Live matches table found")
         
-        # Import extraction functions
-        from app.extract_matches import extract_match_data, save_matches_to_database
+        # Save the HTML and screenshot first (before extraction)
+        print_info("Saving page state...")
+        html_path, screenshot_path = save_html_and_screenshot(
+            page=page,
+            output_dir=STEP_OUTPUT_DIR,
+            filename="live_matches_data.html",
+            step_name=STEP_NAME
+        )
         
-        # Extract data
+        # Extract matches from the saved HTML and save to database
         print_info("Extracting match data...")
-        matches = extract_match_data(page)
-        
-        if matches:
-            print_success(f"Extracted {len(matches)} matches")
+        try:
+            # Initialize database
+            init_database()
             
-            # Save to database
-            print_info("Saving to database...")
-            save_matches_to_database(matches)
-            print_success("Data saved to database")
-        else:
-            print_error("No matches extracted")
-        
-        print_info("Data extraction completed")
+            # Extract matches from HTML
+            matches = extract_all_matches_from_html(html_path)
+            
+            if matches:
+                print_success(f"Extracted {len(matches)} matches")
+                
+                # Save to database
+                print_info("Saving to database...")
+                saved_count = save_matches_to_database(matches)
+                print_success(f"Saved {saved_count} matches to database")
+                
+                # Export to JSON
+                try:
+                    from app.export_json import export_matches_to_json
+                    json_file = export_matches_to_json()
+                    print_success(f"Matches exported to JSON: {json_file}")
+                except Exception as e:
+                    print_info(f"Could not export to JSON: {e}")
+            else:
+                print_error("No matches extracted")
+        except Exception as e:
+            print_error(f"Error extracting matches: {e}")
     else:
         print_error("Live matches table not found")
-    
-    # Save the HTML and screenshot
-    print_info("Saving page state...")
-    save_html_and_screenshot(
-        page=page,
-        output_dir=STEP_OUTPUT_DIR,
-        filename="live_matches_data.html",
-        step_name=STEP_NAME
-    )
+        
+        # Still save the HTML and screenshot even if table not found
+        print_info("Saving page state...")
+        save_html_and_screenshot(
+            page=page,
+            output_dir=STEP_OUTPUT_DIR,
+            filename="live_matches_data.html",
+            step_name=STEP_NAME
+        )
     
     return live_matches_loaded
 
